@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Peta Jangkauan Fasilitas Pendidikan Kecamatan Taman Kota Sidoarjo</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/BatasWilayahKecamatanTaman_1.js"></script>
+        <script src="data/KecamatanTaman_2.js"></script>
+        <script src="data/ServiceArea_3.js"></script>
+        <script src="data/Jalan_4.js"></script>
+        <script src="data/FasilitasPendidikan_5.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Peta Jangkauan Fasilitas Pendidikan Kecamatan Taman Kota Sidoarjo</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_CartoDBPositron_0');
+        map.getPane('pane_CartoDBPositron_0').style.zIndex = 400;
+        var layer_CartoDBPositron_0 = L.tileLayer('https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            pane: 'pane_CartoDBPositron_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_CartoDBPositron_0;
+        map.addLayer(layer_CartoDBPositron_0);
+        function pop_BatasWilayahKecamatanTaman_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kelurahan'] !== null ? autolinker.link(feature.properties['Kelurahan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">REMARK</th>\
+                        <td>' + (feature.properties['REMARK'] !== null ? autolinker.link(feature.properties['REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Luas Wilayah'] !== null ? autolinker.link(feature.properties['Luas Wilayah'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kecamatan'] !== null ? autolinker.link(feature.properties['Kecamatan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kota'] !== null ? autolinker.link(feature.properties['Kota'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Provinsi'] !== null ? autolinker.link(feature.properties['Provinsi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_BatasWilayahKecamatanTaman_1_0() {
+            return {
+                pane: 'pane_BatasWilayahKecamatanTaman_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(244,201,217,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_BatasWilayahKecamatanTaman_1');
+        map.getPane('pane_BatasWilayahKecamatanTaman_1').style.zIndex = 401;
+        map.getPane('pane_BatasWilayahKecamatanTaman_1').style['mix-blend-mode'] = 'normal';
+        var layer_BatasWilayahKecamatanTaman_1 = new L.geoJson(json_BatasWilayahKecamatanTaman_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_BatasWilayahKecamatanTaman_1',
+            layerName: 'layer_BatasWilayahKecamatanTaman_1',
+            pane: 'pane_BatasWilayahKecamatanTaman_1',
+            onEachFeature: pop_BatasWilayahKecamatanTaman_1,
+            style: style_BatasWilayahKecamatanTaman_1_0,
+        });
+        bounds_group.addLayer(layer_BatasWilayahKecamatanTaman_1);
+        map.addLayer(layer_BatasWilayahKecamatanTaman_1);
+        function pop_KecamatanTaman_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_ADMINI'] !== null ? autolinker.link(feature.properties['FID_ADMINI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDPPUM'] !== null ? autolinker.link(feature.properties['KDPPUM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kelurahan'] !== null ? autolinker.link(feature.properties['Kelurahan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Wilayah Ad'] !== null ? autolinker.link(feature.properties['Wilayah Ad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDPBPS'] !== null ? autolinker.link(feature.properties['KDPBPS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FCODE'] !== null ? autolinker.link(feature.properties['FCODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LUASWH'] !== null ? autolinker.link(feature.properties['LUASWH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UUPP'] !== null ? autolinker.link(feature.properties['UUPP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SRS_ID'] !== null ? autolinker.link(feature.properties['SRS_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LCODE'] !== null ? autolinker.link(feature.properties['LCODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METADATA'] !== null ? autolinker.link(feature.properties['METADATA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDEBPS'] !== null ? autolinker.link(feature.properties['KDEBPS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDEPUM'] !== null ? autolinker.link(feature.properties['KDEPUM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDCBPS'] !== null ? autolinker.link(feature.properties['KDCBPS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDCPUM'] !== null ? autolinker.link(feature.properties['KDCPUM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDBBPS'] !== null ? autolinker.link(feature.properties['KDBBPS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KDBPUM'] !== null ? autolinker.link(feature.properties['KDBPUM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WADMKD'] !== null ? autolinker.link(feature.properties['WADMKD'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WIADKD'] !== null ? autolinker.link(feature.properties['WIADKD'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kecamatan'] !== null ? autolinker.link(feature.properties['Kecamatan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WIADKC'] !== null ? autolinker.link(feature.properties['WIADKC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Kota'] !== null ? autolinker.link(feature.properties['Kota'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WIADKK'] !== null ? autolinker.link(feature.properties['WIADKK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Provinsi'] !== null ? autolinker.link(feature.properties['Provinsi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WIADPR'] !== null ? autolinker.link(feature.properties['WIADPR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TIPADM'] !== null ? autolinker.link(feature.properties['TIPADM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Leng'] !== null ? autolinker.link(feature.properties['SHAPE_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_SAPoly'] !== null ? autolinker.link(feature.properties['FID_SAPoly'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FacilityID'] !== null ? autolinker.link(feature.properties['FacilityID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FromBreak'] !== null ? autolinker.link(feature.properties['FromBreak'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ToBreak'] !== null ? autolinker.link(feature.properties['ToBreak'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Le_1'] !== null ? autolinker.link(feature.properties['Shape_Le_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Area'] !== null ? autolinker.link(feature.properties['Shape_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KecamatanTaman_2_0(feature) {
+            switch(String(feature.properties['NAMOBJ'])) {
+                case 'BOHAR':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(113,177,234,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BRINGINBENDO':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(87,208,119,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GELURAN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(207,86,73,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GILANG':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(24,213,210,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'JEMUNDO':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(53,224,56,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEDUNGTURI':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(25,216,168,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. BEBEKAN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(162,203,66,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. KALIJATEN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(202,209,102,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. KETENGAN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(208,121,195,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. SEPANJANG':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(34,43,206,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. TAMAN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(152,114,203,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KEL. WONOCOLO':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(238,116,55,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KLETEK':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(240,145,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KRAMATJEGU':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(119,145,213,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KREMBANGAN':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,182,59,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NGELOM':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(200,85,213,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'PERTAPANMADURETNO':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,107,204,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SADANG':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(101,70,239,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SAMBIBULU':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(59,211,17,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SIDODADI':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,168,101,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TANJUNGSARI':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(23,228,129,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TAWANGSARI':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(135,237,46,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TROSOBO':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(207,91,106,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'WAGE':
+                    return {
+                pane: 'pane_KecamatanTaman_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,20,91,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_KecamatanTaman_2');
+        map.getPane('pane_KecamatanTaman_2').style.zIndex = 402;
+        map.getPane('pane_KecamatanTaman_2').style['mix-blend-mode'] = 'normal';
+        var layer_KecamatanTaman_2 = new L.geoJson(json_KecamatanTaman_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KecamatanTaman_2',
+            layerName: 'layer_KecamatanTaman_2',
+            pane: 'pane_KecamatanTaman_2',
+            onEachFeature: pop_KecamatanTaman_2,
+            style: style_KecamatanTaman_2_0,
+        });
+        bounds_group.addLayer(layer_KecamatanTaman_2);
+        map.addLayer(layer_KecamatanTaman_2);
+        function pop_ServiceArea_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ObjectID'] !== null ? autolinker.link(feature.properties['ObjectID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FacilityID'] !== null ? autolinker.link(feature.properties['FacilityID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FromBreak'] !== null ? autolinker.link(feature.properties['FromBreak'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ToBreak'] !== null ? autolinker.link(feature.properties['ToBreak'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ServiceArea_3_0() {
+            return {
+                pane: 'pane_ServiceArea_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(141,90,153,0.6705882352941176)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ServiceArea_3');
+        map.getPane('pane_ServiceArea_3').style.zIndex = 403;
+        map.getPane('pane_ServiceArea_3').style['mix-blend-mode'] = 'normal';
+        var layer_ServiceArea_3 = new L.geoJson(json_ServiceArea_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ServiceArea_3',
+            layerName: 'layer_ServiceArea_3',
+            pane: 'pane_ServiceArea_3',
+            onEachFeature: pop_ServiceArea_3,
+            style: style_ServiceArea_3_0,
+        });
+        bounds_group.addLayer(layer_ServiceArea_3);
+        map.addLayer(layer_ServiceArea_3);
+        function pop_Jalan_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMRJL'] !== null ? autolinker.link(feature.properties['NAMRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KONRJL'] !== null ? autolinker.link(feature.properties['KONRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MATRJL'] !== null ? autolinker.link(feature.properties['MATRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FGSRJL'] !== null ? autolinker.link(feature.properties['FGSRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTKRJL'] !== null ? autolinker.link(feature.properties['UTKRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TOLRJL'] !== null ? autolinker.link(feature.properties['TOLRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WLYRJL'] !== null ? autolinker.link(feature.properties['WLYRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AUTRJL'] !== null ? autolinker.link(feature.properties['AUTRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KLSRJL'] !== null ? autolinker.link(feature.properties['KLSRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SPCRJL'] !== null ? autolinker.link(feature.properties['SPCRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['JPARJL'] !== null ? autolinker.link(feature.properties['JPARJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ARHRJL'] !== null ? autolinker.link(feature.properties['ARHRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STARJL'] !== null ? autolinker.link(feature.properties['STARJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KLLRJL'] !== null ? autolinker.link(feature.properties['KLLRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MEDRJL'] !== null ? autolinker.link(feature.properties['MEDRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LOCRJL'] !== null ? autolinker.link(feature.properties['LOCRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['JARRJL'] !== null ? autolinker.link(feature.properties['JARRJL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FCODE'] !== null ? autolinker.link(feature.properties['FCODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REMARK'] !== null ? autolinker.link(feature.properties['REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SRS_ID'] !== null ? autolinker.link(feature.properties['SRS_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LCODE'] !== null ? autolinker.link(feature.properties['LCODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METADATA'] !== null ? autolinker.link(feature.properties['METADATA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Leng'] !== null ? autolinker.link(feature.properties['SHAPE_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Le_1'] !== null ? autolinker.link(feature.properties['Shape_Le_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Jalan_4_0() {
+            return {
+                pane: 'pane_Jalan_4',
+                opacity: 1,
+                color: 'rgba(183,72,75,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Jalan_4');
+        map.getPane('pane_Jalan_4').style.zIndex = 404;
+        map.getPane('pane_Jalan_4').style['mix-blend-mode'] = 'normal';
+        var layer_Jalan_4 = new L.geoJson(json_Jalan_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Jalan_4',
+            layerName: 'layer_Jalan_4',
+            pane: 'pane_Jalan_4',
+            onEachFeature: pop_Jalan_4,
+            style: style_Jalan_4_0,
+        });
+        bounds_group.addLayer(layer_Jalan_4);
+        map.addLayer(layer_Jalan_4);
+        function pop_FasilitasPendidikan_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nama Sekol</th>\
+                        <td>' + (feature.properties['Nama Sekol'] !== null ? autolinker.link(feature.properties['Nama Sekol'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="SRS_ID"colspan="2"><strong>SRS_ID</strong><br />' + (feature.properties['SRS_ID'] !== null ? autolinker.link(feature.properties['SRS_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Foto</th>\
+                        <td>' + (feature.properties['Foto'] !== null ? '<img src="images/' + String(feature.properties['Foto']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FasilitasPendidikan_5_0() {
+            return {
+                pane: 'pane_FasilitasPendidikan_5',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_FasilitasPendidikan_5');
+        map.getPane('pane_FasilitasPendidikan_5').style.zIndex = 405;
+        map.getPane('pane_FasilitasPendidikan_5').style['mix-blend-mode'] = 'normal';
+        var layer_FasilitasPendidikan_5 = new L.geoJson(json_FasilitasPendidikan_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FasilitasPendidikan_5',
+            layerName: 'layer_FasilitasPendidikan_5',
+            pane: 'pane_FasilitasPendidikan_5',
+            onEachFeature: pop_FasilitasPendidikan_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_FasilitasPendidikan_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_FasilitasPendidikan_5);
+        map.addLayer(layer_FasilitasPendidikan_5);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/FasilitasPendidikan_5.png" /> FasilitasPendidikan', layer: layer_FasilitasPendidikan_5},
+            {label: '<img src="legend/Jalan_4.png" /> Jalan', layer: layer_Jalan_4},
+            {label: '<img src="legend/ServiceArea_3.png" /> ServiceArea', layer: layer_ServiceArea_3},
+            {label: 'KecamatanTaman<br /><table><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_BOHAR0.png" /></td><td>BOHAR</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_BRINGINBENDO1.png" /></td><td>BRINGINBENDO</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_GELURAN2.png" /></td><td>GELURAN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_GILANG3.png" /></td><td>GILANG</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_JEMUNDO4.png" /></td><td>JEMUNDO</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KEDUNGTURI5.png" /></td><td>KEDUNGTURI</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELBEBEKAN6.png" /></td><td>KEL. BEBEKAN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELKALIJATEN7.png" /></td><td>KEL. KALIJATEN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELKETENGAN8.png" /></td><td>KEL. KETENGAN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELSEPANJANG9.png" /></td><td>KEL. SEPANJANG</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELTAMAN10.png" /></td><td>KEL. TAMAN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KELWONOCOLO11.png" /></td><td>KEL. WONOCOLO</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KLETEK12.png" /></td><td>KLETEK</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KRAMATJEGU13.png" /></td><td>KRAMATJEGU</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_KREMBANGAN14.png" /></td><td>KREMBANGAN</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_NGELOM15.png" /></td><td>NGELOM</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_PERTAPANMADURETNO16.png" /></td><td>PERTAPANMADURETNO</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_SADANG17.png" /></td><td>SADANG</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_SAMBIBULU18.png" /></td><td>SAMBIBULU</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_SIDODADI19.png" /></td><td>SIDODADI</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_TANJUNGSARI20.png" /></td><td>TANJUNGSARI</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_TAWANGSARI21.png" /></td><td>TAWANGSARI</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_TROSOBO22.png" /></td><td>TROSOBO</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanTaman_2_WAGE23.png" /></td><td>WAGE</td></tr></table>', layer: layer_KecamatanTaman_2},
+            {label: '<img src="legend/BatasWilayahKecamatanTaman_1.png" /> BatasWilayahKecamatanTaman', layer: layer_BatasWilayahKecamatanTaman_1},
+            {label: "CartoDBPositron", layer: layer_CartoDBPositron_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        </script>
+    </body>
+</html>
